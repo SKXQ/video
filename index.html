@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Links</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            text-align: center;
+        }
+        .link-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .link-box {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 80%;
+        }
+        .link-box:hover {
+            background-color: #f0f0f0;
+        }
+        .remove-link {
+            color: red;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Links</h1>
+        
+        <input type="text" id="linkInput" placeholder="Paste a YouTube link here">
+        <button id="addLinkButton" onclick="addLink()">Add Link</button>
+
+        <div id="linksContainer">
+            <!-- Links will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // Initialize links array from localStorage or empty array if not exists
+        let links = JSON.parse(localStorage.getItem('links')) || [];
+
+        // Function to add a link
+        function addLink() {
+            const linkInput = document.getElementById('linkInput');
+            const link = linkInput.value.trim();
+            if (isValidYouTubeLink(link) && links.length < 10) {
+                // Add link to array
+                links.push(link);
+                // Save links to localStorage
+                localStorage.setItem('links', JSON.stringify(links));
+                updateLinksDisplay();
+                // Clear input field
+                linkInput.value = '';
+            } else {
+                alert("Please enter a valid YouTube link.");
+            }
+        }
+
+        // Function to check if a link is a valid YouTube link
+        function isValidYouTubeLink(link) {
+            return link.match(/^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/);
+        }
+
+        // Function to remove a link
+        function removeLink(index) {
+            links.splice(index, 1); // Remove link from array
+            localStorage.setItem('links', JSON.stringify(links)); // Update localStorage
+            updateLinksDisplay(); // Update display
+        }
+
+        // Function to update links display
+        function updateLinksDisplay() {
+            const linksContainer = document.getElementById('linksContainer');
+            // Clear previous links
+            linksContainer.innerHTML = '';
+            // Add links to container
+            links.forEach((link, index) => {
+                const linkContainer = document.createElement('div');
+                linkContainer.classList.add('link-container');
+
+                const linkElement = document.createElement('div');
+                linkElement.classList.add('link-box');
+                linkElement.textContent = link;
+                linkElement.addEventListener('click', () => {
+                    // Open link in a new tab
+                    window.open(link, '_blank');
+                });
+
+                const removeLinkIcon = document.createElement('div');
+                removeLinkIcon.classList.add('remove-link');
+                removeLinkIcon.textContent = '❌';
+                removeLinkIcon.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent link click event from firing
+                    removeLink(index);
+                });
+
+                linkContainer.appendChild(linkElement);
+                linkContainer.appendChild(removeLinkIcon);
+
+                linksContainer.appendChild(linkContainer);
+            });
+        }
+
+        // Call updateLinksDisplay initially to load saved links
+        updateLinksDisplay();
+    </script>
+</body>
+</html>
